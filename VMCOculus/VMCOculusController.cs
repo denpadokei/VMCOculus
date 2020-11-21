@@ -21,6 +21,7 @@ namespace VMCOculus
 
         InputDevice _device;
         uOscClient client;
+        public const string DeviceSerial = "VIRTUAL_DEVICE";
 
         // These methods are automatically called by Unity, you should remove any you aren't using.
         #region Monobehaviour Messages
@@ -50,7 +51,8 @@ namespace VMCOculus
             try {
                 this._device.TryGetFeatureValue(CommonUsages.devicePosition, out var v);
                 this._device.TryGetFeatureValue(CommonUsages.deviceRotation, out var r);
-                client.Send("/VMC/Ext/Hmd/Pos", "HMD",
+                Plugin.Log.Debug($"Pos : {v}, Rot : {r}");
+                client.Send("/VMC/Ext/Tra/Pos", "Head",
                 v.x, v.y, v.z,
                 r.x, r.y, r.z, r.w);
             }

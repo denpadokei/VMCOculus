@@ -16,7 +16,7 @@ namespace uOSC
         string address = "127.0.0.1";
 
         [SerializeField]
-        int port = 39540;
+        int port = 3333;
 
 #if NETFX_CORE
     Udp udp_ = new Uwp.Udp();
