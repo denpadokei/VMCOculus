@@ -52,9 +52,15 @@ namespace VMCOculus
                 this._device.TryGetFeatureValue(CommonUsages.devicePosition, out var v);
                 this._device.TryGetFeatureValue(CommonUsages.deviceRotation, out var r);
                 Plugin.Log.Debug($"Pos : {v}, Rot : {r}");
-                client.Send("/VMC/Ext/Tra/Pos", "Head",
+
+
+                // このへんがわからん
+                client.Send("/VMC/Ext/Hmd/Pos", DeviceSerial,
                 v.x, v.y, v.z,
                 r.x, r.y, r.z, r.w);
+
+                //client.Send("/VMC/Ext/Blend/Val", "", 0f);
+                //client.Send("/VMC/Ext/Blend/Apply");
             }
             catch (Exception e) {
                 Plugin.Log.Error(e);
