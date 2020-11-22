@@ -1,8 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Concurrent;
 using System.IO;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.Threading.Tasks;
+using UnityEngine;
 
 namespace uOSC
 {
@@ -13,10 +11,10 @@ namespace uOSC
         private const int MaxQueueSize = 100;
 
         [SerializeField]
-        string address = "127.0.0.1";
+        string address = "192.168.3.3";
 
         [SerializeField]
-        int port = 3333;
+        int port = 39540;
 
 #if NETFX_CORE
     Udp udp_ = new Uwp.Udp();
@@ -59,12 +57,9 @@ namespace uOSC
         void Add(object data)
         {
             messages_.Enqueue(data);
-            _ = Task.Run(() =>
-            {
-                while (messages_.Count > MaxQueueSize) {
-                    messages_.TryDequeue(out _);
-                }
-            });
+            while (messages_.Count > MaxQueueSize) {
+                messages_.TryDequeue(out _);
+            }
         }
 
 

@@ -1,12 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.XR;
 using uOSC;
 
 namespace VMCOculus
@@ -19,9 +12,10 @@ namespace VMCOculus
     {
         public static VMCOculusController Instance { get; private set; }
 
-        InputDevice _device;
+        //InputDevice _device;
+        OVRPose pose;
         uOscClient client;
-        public const string DeviceSerial = "VIRTUAL_DEVICE";
+        public const string DeviceSerial = "HMD";
 
         // These methods are automatically called by Unity, you should remove any you aren't using.
         #region Monobehaviour Messages
@@ -39,7 +33,9 @@ namespace VMCOculus
             }
             GameObject.DontDestroyOnLoad(this); // Don't destroy this object on scene changes
             Instance = this;
-            this._device = InputDevices.GetDeviceAtXRNode(XRNode.CenterEye);
+
+
+            //this._device = InputDevices.GetDeviceAtXRNode(XRNode.TrackingReference);
             this.client = this.gameObject.AddComponent<uOscClient>();
             Plugin.Log?.Debug($"{name}: Awake()");
         }
@@ -49,16 +45,16 @@ namespace VMCOculus
         private void Update()
         {
             try {
-                this._device.TryGetFeatureValue(CommonUsages.devicePosition, out var v);
-                this._device.TryGetFeatureValue(CommonUsages.deviceRotation, out var r);
-                Plugin.Log.Debug($"Pos : {v}, Rot : {r}");
-
+                //this._device.TryGetFeatureValue(CommonUsages.devicePosition, out var v);
+                //this._device.TryGetFeatureValue(CommonUsages.deviceRotation, out var r);
+                pose = OVRPlugin.GetNodePose(OVRPlugin.Node.Head, OVRPlugin.Step.Render).ToOVRPose();
 
                 // このへんがわからん
                 client.Send("/VMC/Ext/Hmd/Pos", DeviceSerial,
-                v.x, v.y, v.z,
-                r.x, r.y, r.z, r.w);
+                pose.position.x, pose.position.y, pose.position.z,
+                pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w);
 
+                Plugin.Log.Debug($"Pos : ({pose.position.x},{pose.position.y},{pose.position.z}), Rot : ({pose.orientation.x},{pose.orientation.y},{pose.orientation.z}.{pose.orientation.w})");
                 //client.Send("/VMC/Ext/Blend/Val", "", 0f);
                 //client.Send("/VMC/Ext/Blend/Apply");
             }
