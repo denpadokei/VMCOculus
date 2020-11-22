@@ -11,7 +11,7 @@ namespace uOSC
         private const int MaxQueueSize = 100;
 
         [SerializeField]
-        string address = "192.168.3.3";
+        string address = "127.0.0.1";
 
         [SerializeField]
         int port = 39540;

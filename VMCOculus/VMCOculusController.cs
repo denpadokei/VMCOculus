@@ -15,7 +15,7 @@ namespace VMCOculus
         //InputDevice _device;
         OVRPose pose;
         uOscClient client;
-        public const string DeviceSerial = "HMD";
+        public const string DeviceSerial = "BeatSaber Virtual HMD";
 
         // These methods are automatically called by Unity, you should remove any you aren't using.
         #region Monobehaviour Messages
@@ -45,18 +45,11 @@ namespace VMCOculus
         private void Update()
         {
             try {
-                //this._device.TryGetFeatureValue(CommonUsages.devicePosition, out var v);
-                //this._device.TryGetFeatureValue(CommonUsages.deviceRotation, out var r);
                 pose = OVRPlugin.GetNodePose(OVRPlugin.Node.Head, OVRPlugin.Step.Render).ToOVRPose();
 
-                // このへんがわからん
                 client.Send("/VMC/Ext/Hmd/Pos", DeviceSerial,
                 pose.position.x, pose.position.y, pose.position.z,
                 pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w);
-
-                Plugin.Log.Debug($"Pos : ({pose.position.x},{pose.position.y},{pose.position.z}), Rot : ({pose.orientation.x},{pose.orientation.y},{pose.orientation.z}.{pose.orientation.w})");
-                //client.Send("/VMC/Ext/Blend/Val", "", 0f);
-                //client.Send("/VMC/Ext/Blend/Apply");
             }
             catch (Exception e) {
                 Plugin.Log.Error(e);

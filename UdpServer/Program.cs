@@ -20,6 +20,7 @@ namespace UdpServer
 
         private static void Server_RecivedEvent(object sender, uOsc.Scripts.ReciveMessageArgs e)
         {
+            Console.WriteLine($"{e.Message.address}");
             foreach (var item in e.Message.values) {
                 Console.WriteLine($"{item}");
             }
