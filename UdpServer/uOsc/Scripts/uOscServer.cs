@@ -6,7 +6,7 @@ namespace uOSC
 
     public class uOscServer : IDisposable
     {
-        int port = 39539;
+        int port = 39540;
 
 #if NETFX_CORE
     Udp udp_ = new Uwp.Udp();
