@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using UnityEngine;
 using uOSC;
 
@@ -11,6 +12,8 @@ namespace VMCOculus
     public class VMCOculusController : MonoBehaviour
     {
         public static VMCOculusController Instance { get; private set; }
+
+        private System.Threading.Thread thread;
 
         //InputDevice _device;
         OVRPose pose;
@@ -36,26 +39,26 @@ namespace VMCOculus
 
 
             //this._device = InputDevices.GetDeviceAtXRNode(XRNode.TrackingReference);
-            this.client = this.gameObject.AddComponent<uOscClient>();
+            this.client = new uOscClient();
+            this.thread = new System.Threading.Thread(new ThreadStart(() =>
+            {
+                while (true) {
+                    try {
+                        pose = OVRPlugin.GetNodePose(OVRPlugin.Node.Head, OVRPlugin.Step.Render).ToOVRPose();
+
+                        client.Enqueue("/VMC/Ext/Hmd/Pos", DeviceSerial,
+                        pose.position.x, pose.position.y, pose.position.z,
+                        pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w);
+                    }
+                    catch (Exception e) {
+                        Plugin.Log.Error(e);
+                    }
+                    System.Threading.Thread.Sleep(10);
+                }
+            }));
+            this.thread.Start();
             Plugin.Log?.Debug($"{name}: Awake()");
         }
-        /// <summary>
-        /// Called every frame if the script is enabled.
-        /// </summary>
-        private void Update()
-        {
-            try {
-                pose = OVRPlugin.GetNodePose(OVRPlugin.Node.Head, OVRPlugin.Step.Render).ToOVRPose();
-
-                client.Send("/VMC/Ext/Hmd/Pos", DeviceSerial,
-                pose.position.x, pose.position.y, pose.position.z,
-                pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w);
-            }
-            catch (Exception e) {
-                Plugin.Log.Error(e);
-            }
-        }
-
 
         /// <summary>
         /// Called when the script is being destroyed.
@@ -65,6 +68,9 @@ namespace VMCOculus
             Plugin.Log?.Debug($"{name}: OnDestroy()");
             if (Instance == this)
                 Instance = null; // This MonoBehaviour is being destroyed, so set the static instance property to null.
+
+            this.thread.Abort();
+            this.client.Dispose();
         }
         #endregion
     }

@@ -1,20 +1,22 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.IO;
 using UnityEngine;
 
 namespace uOSC
 {
 
-    public class uOscClient : MonoBehaviour
+    public class uOscClient : IDisposable
     {
         private const int BufferSize = 8192;
         private const int MaxQueueSize = 100;
-
-        [SerializeField]
         string address = "127.0.0.1";
-
-        [SerializeField]
         int port = 39540;
+
+        public uOscClient()
+        {
+            this.OnEnable();
+        }
 
 #if NETFX_CORE
     Udp udp_ = new Uwp.Udp();
@@ -24,6 +26,8 @@ namespace uOSC
         Thread thread_ = new DotNet.Thread();
 #endif
         ConcurrentQueue<object> messages_ = new ConcurrentQueue<object>();
+        private bool disposedValue;
+
         void OnEnable()
         {
             udp_.StartClient(address, port);
@@ -54,7 +58,7 @@ namespace uOSC
             }
         }
 
-        void Add(object data)
+        void Enqueue(object data)
         {
             messages_.Enqueue(data);
             while (messages_.Count > MaxQueueSize) {
@@ -63,23 +67,51 @@ namespace uOSC
         }
 
 
-        public void Send(string address, params object[] values)
+        public void Enqueue(string address, params object[] values)
         {
-            Send(new Message()
+            this.Enqueue(new Message()
             {
                 address = address,
                 values = values
             });
         }
 
-        public void Send(Message message)
+        public void Enqueue(Message message)
         {
-            Add(message);
+            this.Enqueue((object)message);
         }
 
-        public void Send(Bundle bundle)
+        public void Enqueue(Bundle bundle)
         {
-            Add(bundle);
+            this.Enqueue((object)bundle);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue) {
+                if (disposing) {
+                    // TODO: マネージド状態を破棄します (マネージド オブジェクト)
+                    this.OnDisable();
+                }
+
+                // TODO: アンマネージド リソース (アンマネージド オブジェクト) を解放し、ファイナライザーをオーバーライドします
+                // TODO: 大きなフィールドを null に設定します
+                disposedValue = true;
+            }
+        }
+
+        // // TODO: 'Dispose(bool disposing)' にアンマネージド リソースを解放するコードが含まれる場合にのみ、ファイナライザーをオーバーライドします
+        // ~uOscClient()
+        // {
+        //     // このコードを変更しないでください。クリーンアップ コードを 'Dispose(bool disposing)' メソッドに記述します
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // このコードを変更しないでください。クリーンアップ コードを 'Dispose(bool disposing)' メソッドに記述します
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }
