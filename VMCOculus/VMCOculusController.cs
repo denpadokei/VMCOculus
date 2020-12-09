@@ -46,9 +46,12 @@ namespace VMCOculus
                     try {
                         pose = OVRPlugin.GetNodePose(OVRPlugin.Node.Head, OVRPlugin.Step.Render).ToOVRPose();
 
-                        client.Enqueue("/VMC/Ext/Hmd/Pos", DeviceSerial,
-                        pose.position.x, pose.position.y, pose.position.z,
-                        pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w);
+                        this.client.Send(new Message("/VMC/Ext/Hmd/Pos", new object[8]
+                        {
+                            DeviceSerial,
+                            pose.position.x, pose.position.y, pose.position.z,
+                            pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w
+                        }));
                     }
                     catch (Exception e) {
                         Plugin.Log.Error(e);

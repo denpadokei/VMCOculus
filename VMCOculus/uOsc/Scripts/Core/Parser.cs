@@ -39,11 +39,9 @@ public class Parser
             var values = ParseData(buf, ref pos);
             lock (lockObject_)
             {
-                messages_.Enqueue(new Message() 
+                messages_.Enqueue(new Message(first, values) 
                 {
-                    address = first,
-                    timestamp = new Timestamp(timestamp),
-                    values = values
+                    timestamp = new Timestamp(timestamp)
                 });
             }
         }
